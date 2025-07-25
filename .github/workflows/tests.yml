@@ -50,6 +50,10 @@ jobs:
             echo "report_exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Set timestamp
+        id: timestamp
+        run: echo "dir=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_OUTPUT
+
       - name: Restore Allure History
         if: steps.generate.outputs.report_exists == 'true'
         run: |
@@ -59,9 +63,18 @@ jobs:
           mkdir -p allure-report/history
           cp -r gh-pages-temp/history allure-report/ || true
 
-      - name: Upload Allure report to GitHub Pages
+      - name: Upload timestamped Allure report to GitHub Pages
         if: success() && steps.generate.outputs.report_exists == 'true'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
+          destination_dir: reports/${{ steps.timestamp.outputs.dir }}
+
+      - name: Upload latest Allure report to GitHub Pages
+        if: success() && steps.generate.outputs.report_exists == 'true'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
+          destination_dir: latest
