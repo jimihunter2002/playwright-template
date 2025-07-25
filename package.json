@@ -5,14 +5,15 @@
   "homepage": "https://github.com.jimihunter2002/playwright-template",
   "scripts": {
     "test": "npx playwright test",
+    "test:allure": "npx playwright test --report=line,allure-playwright && npm run allure:generate",
     "test:headed": "HEADLESS=false npx playwright test",
     "report": "npx playwright show-report",
     "test:debug": "npx playwright test --update-snapshots --headed --debug",
     "docker:test": "docker build -t playwright-framework . && docker run --rm --env-file=.env playwright-tests",
     "allure:generate": "rm -rf allure-report && mkdir -p allure-history && cp -r allure-report/history allure-history || true && allure generate --clean allure-results -o allure-report && cp -r allure-history allure-report/history || true",
     "allure:open": "allure open allure-report",
-    "allure:deploy": "gh-pages -d allure-report",
-    "test:allure": "npm run test && npm run allure:generate"
+    "allure:deploy": "gh-pages -d allure-report"
+    
   },
   "keywords": [],
   "author": "",
