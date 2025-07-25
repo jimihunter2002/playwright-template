@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Cache node_modules
+      - name: Cache node_modules and Playwright
         uses: actions/cache@v3
         with:
           path: |
@@ -23,7 +23,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-playwright-
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
@@ -34,24 +34,22 @@ jobs:
       - name: Install Playwright
         run: npx playwright install --with-deps
 
-      - name: Run tests
+      - name: Run tests with Allure reporter
         run: npm run test:allure
         env:
           HEADLESS: true
           BASE_URL: ${{ secrets.BASE_URL }}
 
-      - name: Generate Allure Report
-        run: npm run allure:generate
-
-      - name: Check if Allure Report Exists
+      - name: Generate and Check Allure Report
         id: generate
         run: |
-
+          npm run allure:generate
           if [ -f "./allure-report/index.html" ]; then
             echo "report_exists=true" >> $GITHUB_OUTPUT
           else
             echo "report_exists=false" >> $GITHUB_OUTPUT
           fi
+
       - name: Restore Allure History
         if: steps.generate.outputs.report_exists == 'true'
         run: |
@@ -61,7 +59,7 @@ jobs:
           mkdir -p allure-report/history
           cp -r gh-pages-temp/history allure-report/ || true
 
-      - name: Upload allure report to github pages
+      - name: Upload Allure report to GitHub Pages
         if: success() && steps.generate.outputs.report_exists == 'true'
         uses: peaceiris/actions-gh-pages@v3
         with:
