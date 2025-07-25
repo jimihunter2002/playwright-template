@@ -40,6 +40,8 @@ jobs:
           HEADLESS: true
           BASE_URL: ${{ secrets.BASE_URL }}
 
+      - name: Generate Allure Report
+        run: npm allure:generate
       - name: Restore Allure History
         run: |
           git config user.name github-actions
