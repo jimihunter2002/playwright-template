@@ -1,13 +1,17 @@
-name: Playwright Tests
+name: Playwright Tests E2E
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   test:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -21,15 +25,12 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run tests
-        run: npm run test
+        run: npm run test:allure
         env:
           HEADLESS: true
           BASE_URL: ${{ secrets.BASE_URL }}
-          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-
-      - name: Upload report
-        if: always()
-        uses: actions/upload-artifact@v3
+      - name: Upload allure report to github pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: allure-report
-          path: allure-report
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
