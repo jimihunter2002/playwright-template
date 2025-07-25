@@ -42,15 +42,27 @@ jobs:
 
       - name: Generate Allure Report
         run: npm run allure:generate
+
+      - name: Check if Allure Report Exists
+        id: generate
+        run: |
+
+          if [ -f "./allure-report/index.html" ]; then
+            echo "report_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "report_exists=false" >> $GITHUB_OUTPUT
+          fi
       - name: Restore Allure History
+        if: steps.generate.outputs.report_exists == 'true'
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git clone --depth=1 --branch gh-pages https://github.com/${{ github.repository }} gh-pages-temp || true
-          mkdir -p allure-history
-          cp -r gh-pages-temp/history allure-history || true
+          mkdir -p allure-report/history
+          cp -r gh-pages-temp/history allure-report/ || true
 
       - name: Upload allure report to github pages
+        if: success() && steps.generate.outputs.report_exists == 'true'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
