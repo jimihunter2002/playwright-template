@@ -16,7 +16,8 @@ test.describe('Login Tests', () => {
   });
   test('Visual snapshot of login page', async ({ page }) => {
     await page.goto('/');
-    expect(await page.screenshot()).toMatchSnapshot('login-page.png', {
+
+    await expect(page).toHaveScreenshot('login-page.png', {
       threshold: 0.2,
     });
   });
