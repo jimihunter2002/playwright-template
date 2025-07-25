@@ -1,0 +1,30 @@
+{
+  "name": "playwright-framework",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "HEADLESS=false npx playwright test",
+    "report": "npx playwright show-report",
+    "test:debug": "npx playwright test --update-snapshots --headed --debug",
+    "docker:test": "docker build -t playwright-framework . && docker run --rm --env-file=.env playwright-tests",
+    "allure:generate": "allure generate --clean allure-results -o allure-report",
+    "allure:open": "allure open allure-report",
+    "allure:deploy": "gh-pages -d allure-report",
+    "test:allure": "npm run test && npm run allure:generate && npm run allure:open"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.54.1",
+    "@types/node": "^24.1.0",
+    "allure-commandline": "^2.34.1",
+    "allure-playwright": "^3.3.2",
+    "dotenv": "^17.2.1",
+    "playwright": "^1.54.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
