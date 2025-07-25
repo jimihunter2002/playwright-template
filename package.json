@@ -5,7 +5,7 @@
   "homepage": "https://github.com.jimihunter2002/playwright-template",
   "scripts": {
     "test": "npx playwright test",
-    "test:allure": "npx playwright test --report=line,allure-playwright && npm run allure:generate",
+    "test:allure": "npx playwright test --reporter=line,allure-playwright && npm run allure:generate",
     "test:headed": "HEADLESS=false npx playwright test",
     "report": "npx playwright show-report",
     "test:debug": "npx playwright test --update-snapshots --headed --debug",
