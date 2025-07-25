@@ -1,14 +1,18 @@
 name: Playwright Tests E2E
+
 on:
   push:
     branches:
       - main
+
 jobs:
   test:
     runs-on: macos-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Cache node_modules and Playwright
         uses: actions/cache@v3
         with:
@@ -18,19 +22,24 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-playwright-
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
+
       - name: Install dependencies
         run: npm ci
+
       - name: Install Playwright
         run: npx playwright install --with-deps
+
       - name: Run tests with Allure reporter
         run: npm run test:allure
         env:
           HEADLESS: true
           BASE_URL: ${{ secrets.BASE_URL }}
+
       - name: Generate and Check Allure Report
         id: generate
         run: |
@@ -40,22 +49,20 @@ jobs:
           else
             echo "report_exists=false" >> $GITHUB_OUTPUT
           fi
+
       - name: Set timestamp
         id: timestamp
         run: echo "dir=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_OUTPUT
+
       - name: Restore Allure History
         if: steps.generate.outputs.report_exists == 'true'
-        run: >
+        run: |
           git config user.name github-actions
-
           git config user.email github-actions@github.com
-
-          git clone --depth=1 --branch gh-pages https://github.com/${{
-          github.repository }} gh-pages-temp || true
-
+          git clone --depth=1 --branch gh-pages https://github.com/${{ github.repository }} gh-pages-temp || true
           mkdir -p allure-report/history
-
           cp -r gh-pages-temp/history allure-report/ || true
+
       - name: Upload timestamped Allure report to GitHub Pages
         if: success() && steps.generate.outputs.report_exists == 'true'
         uses: peaceiris/actions-gh-pages@v3
@@ -63,6 +70,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
           destination_dir: reports/${{ steps.timestamp.outputs.dir }}
+
       - name: Upload latest Allure report to GitHub Pages
         if: success() && steps.generate.outputs.report_exists == 'true'
         uses: peaceiris/actions-gh-pages@v3
@@ -70,20 +78,26 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
           destination_dir: latest
+
+      - name: Clone gh-pages branch after uploads
+        if: success() && steps.generate.outputs.report_exists == 'true'
+        run: |
+          rm -rf gh-pages-temp
+          git clone --depth=1 --branch gh-pages https://github.com/${{ github.repository }} gh-pages-temp
+
       - name: Generate reports index.html
         if: success() && steps.generate.outputs.report_exists == 'true'
         run: |
           mkdir -p ./report-index
           echo '<!DOCTYPE html><html><head><title>Allure Reports</title></head><body><h1>Archived Allure Reports</h1><ul>' > ./report-index/index.html
-          if [ -d gh-pages-temp/reports ]; then
-            for dir in $(ls -1 gh-pages-temp/reports | sort -r); do
-              echo "<li><a href=\"$dir/\">$dir</a></li>" >> ./report-index/index.html
-            done
-          else
-            echo "<li>No reports found.</li>" >> ./report-index/index.html
-          fi
+          echo "<li><a href=\"../latest/\">▶ Latest Report</a></li>" >> ./report-index/index.html
+
+          for dir in $(ls -1 gh-pages-temp/reports | sort -r); do
+            echo "<li><a href=\"$dir/\">$dir</a></li>" >> ./report-index/index.html
+          done
 
           echo '</ul></body></html>' >> ./report-index/index.html
+
       - name: Upload reports index to GitHub Pages
         if: success() && steps.generate.outputs.report_exists == 'true'
         uses: peaceiris/actions-gh-pages@v3
