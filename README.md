@@ -5,5 +5,5 @@ supports both UI and API tests
 
 ## 📊 Test Reports
 
-- 🔗 [Latest Allure Report](https://jimihunter2002.github.io/playwright-template/latest/)
-- 📁 [All Reports Archive](https://jimihunter2002.github.io/playwright-template/reports/)
+- [![Allure Report](https://img.shields.io/badge/Allure-Latest-green)](https://jimihunter2002.github.io/playwright-template/latest/)
+- [📁 All Reports Archive](https://jimihunter2002.github.io/playwright-template/reports/)

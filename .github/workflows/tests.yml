@@ -78,3 +78,22 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
           destination_dir: latest
+
+      - name: Generate reports index.html
+        if: success() && steps.generate.outputs.report_exists == 'true'
+        run: |
+          mkdir -p ./report-index
+          echo '<!DOCTYPE html><html><head><title>Allure Reports</title></head><body><h1>Archived Allure Reports</h1><ul>' > ./report-index/index.html
+          for dir in $(ls gh-pages-temp/reports 2>/dev/null || true); do
+            echo "<li><a href=\"$dir/\">$dir</a></li>" >> ./report-index/index.html
+          done
+          echo '</ul></body></html>' >> ./report-index/index.html
+
+      - name: Upload reports index to GitHub Pages
+        if: success() && steps.generate.outputs.report_exists == 'true'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./report-index
+          destination_dir: reports
+          keep_files: true
