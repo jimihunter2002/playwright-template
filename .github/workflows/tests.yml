@@ -10,8 +10,18 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -29,6 +39,15 @@ jobs:
         env:
           HEADLESS: true
           BASE_URL: ${{ secrets.BASE_URL }}
+
+      - name: Restore Allure History
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git clone --depth=1 --branch gh-pages https://github.com/${{ github.repository }} gh-pages-temp || true
+          mkdir -p allure-history
+          cp -r gh-pages-temp/history allure-history || true
+
       - name: Upload allure report to github pages
         uses: peaceiris/actions-gh-pages@v3
         with:

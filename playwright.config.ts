@@ -1,13 +1,13 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
+const headless = process.env.HEADLESS !== 'false';
 
 export default defineConfig({
   //   globalSetup: require.resolve('./tests/utils/auth.ts'),
   use: {
     testIdAttribute: 'data-test',
-    headless: process.env.HEADLESS !== 'false',
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
@@ -17,4 +17,17 @@ export default defineConfig({
   retries: 1,
   testDir: './tests/specs',
   reporter: [['html', { open: 'never' }], ['allure-playwright']],
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'], headless },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'], headless },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'], headless },
+    },
 });
